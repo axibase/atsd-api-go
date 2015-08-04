@@ -21,7 +21,7 @@ import (
 	"bufio"
 	"errors"
 	"github.com/golang/glog"
-	"github.com/google/cadvisor/storage/atsd/net/model"
+	"github.com/axibase/atsd-api-go/net/model"
 	"sync"
 	"time"
 )

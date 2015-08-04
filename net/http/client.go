@@ -22,7 +22,7 @@ import (
 	"net/http"
 
 	"github.com/golang/glog"
-	"github.com/google/cadvisor/storage/atsd/net/http/model"
+	"github.com/axibase/atsd-api-go/net/http/model"
 	"net/url"
 )
 
