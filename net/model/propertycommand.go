@@ -1,35 +1,36 @@
-// Copyright 2014 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+* Copyright 2015 Axibase Corporation or its affiliates. All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License").
+* You may not use this file except in compliance with the License.
+* A copy of the License is located at
+*
+* https://www.axibase.com/atsd/axibase-apache-2.0.pdf
+*
+* or in the "license" file accompanying this file. This file is distributed
+* on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+* express or implied. See the License for the specific language governing
+* permissions and limitations under the License.
+ */
 
 package model
 
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 type PropertyCommand struct {
-	propType     string
-	entity       string
-	key          map[string]string
-	tags         map[string]string
-	hasTimestamp bool
-	timestamp    uint64
+	propType  string
+	entity    string
+	key       map[string]string
+	tags      map[string]string
+	timestamp *Millis
 }
 
-func NewPropertyCommand(propType, entity string) *PropertyCommand {
-	return &PropertyCommand{propType: propType, entity: entity, key: map[string]string{}, tags: map[string]string{}}
+func NewPropertyCommand(propType, entity, tagKey, tagVal string) *PropertyCommand {
+	return &PropertyCommand{propType: propType, entity: entity, key: map[string]string{}, tags: map[string]string{strings.ToLower(tagKey): tagVal}}
 }
 func (self *PropertyCommand) SetKey(key map[string]string) *PropertyCommand {
 	self.key = key
@@ -44,12 +45,11 @@ func (self *PropertyCommand) SetAllTags(tags map[string]string) *PropertyCommand
 	return self
 }
 func (self *PropertyCommand) SetTag(name, value string) *PropertyCommand {
-	self.tags[name] = value
+	self.tags[strings.ToLower(name)] = value
 	return self
 }
-func (self *PropertyCommand) SetTimestamp(timestamp uint64) *PropertyCommand {
-	self.hasTimestamp = true
-	self.timestamp = timestamp
+func (self *PropertyCommand) SetTimestamp(timestamp Millis) *PropertyCommand {
+	self.timestamp = &timestamp
 	return self
 }
 func (self *PropertyCommand) PropType() string {
@@ -72,24 +72,20 @@ func (self *PropertyCommand) Tags() map[string]string {
 	}
 	return copy
 }
-func (self *PropertyCommand) HasTimestamp() bool {
-	return self.hasTimestamp
-}
-func (self *PropertyCommand) Timestamp() uint64 {
-	self.hasTimestamp = true
+func (self *PropertyCommand) Timestamp() *Millis {
 	return self.timestamp
 }
 func (self *PropertyCommand) String() string {
 	str := bytes.NewBufferString("")
 	fmt.Fprintf(str, "property e:%v t:%v", self.entity, self.propType)
-	if self.HasTimestamp() {
-		fmt.Fprintf(str, " ms:%v", self.timestamp)
+	if self.timestamp != nil {
+		fmt.Fprintf(str, " ms:%v", *self.timestamp)
 	}
 	for key, val := range self.key {
-		fmt.Fprintf(str, " k:%v=%v", key, val)
+		fmt.Fprintf(str, " k:%v=\"%v\"", key, val)
 	}
 	for key, val := range self.tags {
-		fmt.Fprintf(str, " v:%v=%v", key, val)
+		fmt.Fprintf(str, " v:%v=\"%v\"", key, val)
 	}
 
 	return str.String()

@@ -1,16 +1,17 @@
-// Copyright 2014 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+* Copyright 2015 Axibase Corporation or its affiliates. All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License").
+* You may not use this file except in compliance with the License.
+* A copy of the License is located at
+*
+* https://www.axibase.com/atsd/axibase-apache-2.0.pdf
+*
+* or in the "license" file accompanying this file. This file is distributed
+* on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+* express or implied. See the License for the specific language governing
+* permissions and limitations under the License.
+ */
 
 package http
 
@@ -21,8 +22,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/golang/glog"
 	"github.com/axibase/atsd-api-go/net/http/model"
+	"github.com/golang/glog"
 	"net/url"
 )
 
@@ -30,34 +31,48 @@ const (
 	seriesQueryPath  = "/api/v1/series"
 	seriesInsertPath = "/api/v1/series/insert"
 
+	messagesQueryPath  = "/api/v1/messages"
+	messagesInsertPath = "/api/v1/messages/insert"
+
 	propertiesInsertPath = "/api/v1/properties/insert"
 
 	entitiesPath = "/api/v1/entities"
+
+	metricsPath = "/api/v1/metrics"
+	commandPath = "/api/v1/command"
 )
 
 type Client struct {
-	url      string
+	url      *url.URL
 	username string
 	password string
 
 	Series     *Series
 	Properties *Properties
 	Entities   *Entities
+	Messages   *Messages
+
+	Metric *Metric
 
 	httpClient *http.Client
 }
 
-func New(url, username, password string) *Client {
-	var client = Client{url: url, username: username, password: password}
+func New(mUrl url.URL, username, password string) *Client {
+	var client = Client{url: &mUrl, username: username, password: password}
 	client.Series = &Series{&client}
 	client.Properties = &Properties{&client}
 	client.Entities = &Entities{&client}
+	client.Messages = &Messages{&client}
+	client.Metric = &Metric{&client}
 	client.httpClient = &http.Client{}
 	return &client
 }
 
+func (self *Client) Url() url.URL {
+	return *self.url
+}
 func (self *Client) request(reqType, apiUrl string, reqJson []byte) (string, error) {
-	req, err := http.NewRequest(reqType, self.url, bytes.NewReader(reqJson))
+	req, err := http.NewRequest(reqType, self.url.String(), bytes.NewReader(reqJson))
 	req.URL.Opaque = req.URL.Path + apiUrl
 	if err != nil {
 		panic(err)
@@ -90,10 +105,10 @@ type Series struct {
 	client *Client
 }
 
-func (self *Series) Query(queries []*model.Query) ([]*model.Series, error) {
+func (self *Series) Query(queries []*model.SeriesQuery) ([]*model.Series, error) {
 
 	request := struct {
-		Queries []*model.Query `json:"queries"`
+		Queries []*model.SeriesQuery `json:"queries"`
 	}{queries}
 
 	jsonRequest, err := json.Marshal(request)
@@ -175,4 +190,53 @@ func (self *Entities) Update(entity *model.Entity) error {
 		return err
 	}
 	return nil
+}
+
+type Metric struct {
+	client *Client
+}
+
+func (self *Metric) CreateOrReplace(metric *model.Metric) error {
+	jsonRequest, err := json.Marshal(metric)
+	if err != nil {
+		panic(err)
+	}
+	metricName := url.QueryEscape(metric.Name())
+	_, err = self.client.request("PUT", metricsPath+"/"+metricName, jsonRequest)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type Messages struct {
+	client *Client
+}
+
+func (self Messages) Insert(messages []*model.Message) error {
+	jsonRequest, err := json.Marshal(messages)
+	if err != nil {
+		panic(err)
+	}
+	_, err = self.client.request("POST", messagesInsertPath, jsonRequest)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (self Messages) Query(query *model.MessagesQuery) ([]*model.Message, error) {
+	jsonRequest, err := json.Marshal(query)
+	if err != nil {
+		panic(err)
+	}
+	jsonData, err := self.client.request("POST", messagesQueryPath, jsonRequest)
+	if err != nil {
+		return nil, err
+	}
+	var messages []*model.Message
+	err = json.Unmarshal([]byte(jsonData), &messages)
+	if err != nil {
+		panic(err)
+	}
+	return messages, nil
 }
