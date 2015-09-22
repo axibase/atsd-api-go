@@ -25,6 +25,7 @@ import (
 	"github.com/axibase/atsd-api-go/net/http/model"
 	"github.com/golang/glog"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -190,6 +191,37 @@ func (self *Entities) Update(entity *model.Entity) error {
 		return err
 	}
 	return nil
+}
+func (self *Entities) List(active bool, expression string, tags []string, limit uint64) ([]*model.Entity, error) {
+	tagsParams := ""
+	if len(tags) == 1 && tags[0] == "*" {
+		tagsParams = url.QueryEscape("*")
+	} else {
+		for i, tag := range tags {
+			if i == 0 {
+				tagsParams += url.QueryEscape(tag)
+			} else {
+				tagsParams += "," + url.QueryEscape(tag)
+			}
+		}
+	}
+
+	jsonData, err := self.client.request("GET", entitiesPath+"?"+
+		"tags="+ tagsParams+"&"+
+		"active=" + url.QueryEscape(strconv.FormatBool(active)) + "&"+
+		"expression=" + url.QueryEscape(expression)+"&"+
+	    "limit=" + url.QueryEscape(strconv.FormatUint(limit, 10)), []byte{})
+	if err != nil {
+		return nil, err
+	}
+
+	var entities []*model.Entity
+	err = json.Unmarshal([]byte(jsonData), &entities)
+	if err != nil {
+		panic(err)
+	}
+
+	return entities, nil
 }
 
 type Metric struct {

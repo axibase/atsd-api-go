@@ -18,7 +18,6 @@ package model
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	netModel "github.com/axibase/atsd-api-go/net/model"
 	"strconv"
 	"strings"
@@ -37,7 +36,6 @@ func (self *Sample) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	self.T, _ = jsonMap["t"].(netModel.Millis)
-	fmt.Println(jsonMap)
 	switch value := jsonMap["v"].(type) {
 	case json.Number:
 		strRep := value.String()

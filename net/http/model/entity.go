@@ -18,17 +18,18 @@ package model
 import (
 	"encoding/json"
 	"strings"
+	"time"
+	"bytes"
 )
 
 type Entity struct {
 	name string
 
-	active     *bool
-	expression *string
+	enabled *bool
 
 	tags map[string]string
 
-	limit *uint64
+	lastInsertTime *time.Time
 }
 
 func NewEntity(name string) *Entity {
@@ -38,11 +39,8 @@ func NewEntity(name string) *Entity {
 func (self *Entity) Name() string {
 	return self.name
 }
-func (self *Entity) Active() *bool {
-	return self.active
-}
-func (self *Entity) Expression() *string {
-	return self.expression
+func (self *Entity) Enabled() *bool {
+	return self.enabled
 }
 func (self *Entity) Tags() map[string]string {
 	copy := map[string]string{}
@@ -51,49 +49,43 @@ func (self *Entity) Tags() map[string]string {
 	}
 	return copy
 }
-func (self *Entity) Limit() *uint64 {
-	return self.limit
+
+func (self *Entity) LastIsertTime() *time.Time {
+	return self.lastInsertTime
 }
 
-func (self *Entity) MarshalJSON() ([]byte, error) {
-	m := map[string]interface{}{
-		"tags": self.tags,
-	}
-	if self.active != nil {
-		m["active"] = *self.active
-	}
-
-	if self.expression != nil {
-		m["expression"] = *self.expression
-	}
-
-	if self.limit != nil {
-		m["limit"] = *self.limit
-	}
-	return json.Marshal(m)
-}
-func (self *Entity) String() string {
-	obj, _ := self.MarshalJSON()
-	return string(obj)
-}
-
-func (self *Entity) SetName(entityName string) *Entity {
-	self.name = entityName
-	return self
-}
-func (self *Entity) SetActive(isActive bool) *Entity {
-	self.active = &isActive
-	return self
-}
-func (self *Entity) SetExpression(expression string) *Entity {
-	self.expression = &expression
+func (self *Entity) SetEnabled(isEnabled bool) *Entity {
+	self.enabled = &isEnabled
 	return self
 }
 func (self *Entity) SetTag(key, val string) *Entity {
 	self.tags[strings.ToLower(key)] = val
 	return self
 }
-func (self *Entity) SetLimit(limit uint64) *Entity {
-	self.limit = &limit
-	return self
+
+func (self *Entity) UnmarshalJSON(data []byte) error {
+	var jsonMap map[string]interface{}
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(&jsonMap); err != nil {
+		return err
+	}
+	self.name, _ = jsonMap["name"].(string)
+
+	enabled, _ := jsonMap["enabled"].(bool)
+	self.enabled = &enabled
+	if _, ok := jsonMap["lastInsertTime"]; ok {
+		lastInsertTimeString, _ := jsonMap["lastInsertTime"].(json.Number)
+		lastInsertTimeInt, _ := lastInsertTimeString.Int64()
+		lastInsertTime := time.Unix(0, lastInsertTimeInt * 1e6)
+		self.lastInsertTime = &lastInsertTime
+	}
+	m, _ := jsonMap["tags"].(map[string]interface{})
+	if self.tags == nil {
+		self.tags = map[string]string{}
+	}
+	for key, val := range m {
+		self.tags[key], _ = val.(string)
+	}
+	return nil
 }
