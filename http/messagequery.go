@@ -13,7 +13,7 @@
 * permissions and limitations under the License.
  */
 
-package model
+package http
 
 import (
 	"encoding/json"

@@ -21,7 +21,6 @@ import (
 
 	"bufio"
 	"errors"
-	"github.com/axibase/atsd-api-go/net/model"
 	"github.com/golang/glog"
 	"sync"
 	"time"
@@ -57,28 +56,28 @@ func (self *NetworkConn) initConn(bufferSize int) error {
 	return nil
 }
 
-func (self *NetworkConn) Series(seriesCommand *model.SeriesCommand) error {
+func (self *NetworkConn) Series(seriesCommand *SeriesCommand) error {
 	err := self.writeCommand(seriesCommand)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (self *NetworkConn) Message(messageCommand *model.MessageCommand) error {
+func (self *NetworkConn) Message(messageCommand *MessageCommand) error {
 	err := self.writeCommand(messageCommand)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (self *NetworkConn) Property(propertyCommand *model.PropertyCommand) error {
+func (self *NetworkConn) Property(propertyCommand *PropertyCommand) error {
 	err := self.writeCommand(propertyCommand)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (self *NetworkConn) EntityTag(entityTagCommand *model.EntityTagCommand) error {
+func (self *NetworkConn) EntityTag(entityTagCommand *EntityTagCommand) error {
 	err := self.writeCommand(entityTagCommand)
 	if err != nil {
 		return err

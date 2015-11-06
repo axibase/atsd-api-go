@@ -13,11 +13,11 @@
 * permissions and limitations under the License.
  */
 
-package model
+package http
 
 import (
 	"encoding/json"
-	netmodel "github.com/axibase/atsd-api-go/net/model"
+	"github.com/axibase/atsd-api-go/net"
 	"strings"
 )
 
@@ -26,7 +26,7 @@ type Property struct {
 	entity    string
 	key       map[string]string
 	tags      map[string]string
-	timestamp *netmodel.Millis
+	timestamp *net.Millis
 }
 
 func NewProperty(propType, entity string) *Property {
@@ -49,7 +49,7 @@ func (self *Property) SetTag(name, value string) *Property {
 	self.tags[strings.ToLower(name)] = value
 	return self
 }
-func (self *Property) SetTimestamp(timestamp netmodel.Millis) *Property {
+func (self *Property) SetTimestamp(timestamp net.Millis) *Property {
 	self.timestamp = &timestamp
 	return self
 }
@@ -77,15 +77,15 @@ func (self *Property) TagValue(name string) (string, bool) {
 	val, ok := self.tags[strings.ToLower(name)]
 	return val, ok
 }
-func (self *Property) Timestamp() *netmodel.Millis {
+func (self *Property) Timestamp() *net.Millis {
 	return self.timestamp
 }
 func (self *Property) MarshalJSON() ([]byte, error) {
 	m := map[string]interface{}{
-		"key":      self.key,
-		"tags":     self.tags,
-		"type": self.propType,
-		"entity":   self.entity,
+		"key":    self.key,
+		"tags":   self.tags,
+		"type":   self.propType,
+		"entity": self.entity,
 	}
 	if self.timestamp != nil {
 		m["timestamp"] = *self.timestamp

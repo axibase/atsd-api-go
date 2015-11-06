@@ -13,13 +13,13 @@
 * permissions and limitations under the License.
  */
 
-package model
+package http
 
 import (
+	"bytes"
 	"encoding/json"
 	"strings"
 	"time"
-	"bytes"
 )
 
 type Entity struct {
@@ -77,7 +77,7 @@ func (self *Entity) UnmarshalJSON(data []byte) error {
 	if _, ok := jsonMap["lastInsertTime"]; ok {
 		lastInsertTimeString, _ := jsonMap["lastInsertTime"].(json.Number)
 		lastInsertTimeInt, _ := lastInsertTimeString.Int64()
-		lastInsertTime := time.Unix(0, lastInsertTimeInt * 1e6)
+		lastInsertTime := time.Unix(0, lastInsertTimeInt*1e6)
 		self.lastInsertTime = &lastInsertTime
 	}
 	m, _ := jsonMap["tags"].(map[string]interface{})

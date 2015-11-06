@@ -13,11 +13,11 @@
 * permissions and limitations under the License.
  */
 
-package model
+package http
 
 import (
 	"encoding/json"
-	netmodel "github.com/axibase/atsd-api-go/net/model"
+	"github.com/axibase/atsd-api-go/net"
 	"strings"
 	"time"
 )
@@ -101,8 +101,8 @@ type Metric struct {
 	persistent        bool              //Persistence status. Non-persistent metrics are not stored in the database and are only used in rule engine.
 	counter           bool              //Metrics with continuously incrementing value should be defined as counters
 	filter            *string           //If filter is specified, metric puts that do not match the filter are discarded
-	minValue          *netmodel.Number  //Minimum value. If value is less than Minimum value, Invalid Action is triggered
-	maxValue          *netmodel.Number  //Maximum value. If value is greater than Maximum value, Invalid Action is triggered
+	minValue          *net.Number       //Minimum value. If value is less than Minimum value, Invalid Action is triggered
+	maxValue          *net.Number       //Maximum value. If value is greater than Maximum value, Invalid Action is triggered
 	invalidAction     InvalidAction     //None - retain value as is; Discard - don’t process the incoming put, discard it; Transform - set value to min_value or max_value; Raise_Error - log error in ATSD log
 	description       *string           //Metric description
 	retentionInterval Days              //Number of days to retain values for this metric in the database
@@ -168,11 +168,11 @@ func (self *Metric) SetFilter(filter string) *Metric {
 	self.filter = &filter
 	return self
 }
-func (self *Metric) SetMinValue(minValue netmodel.Number) *Metric {
+func (self *Metric) SetMinValue(minValue net.Number) *Metric {
 	self.minValue = &minValue
 	return self
 }
-func (self *Metric) SetMaxValue(maxValue netmodel.Number) *Metric {
+func (self *Metric) SetMaxValue(maxValue net.Number) *Metric {
 	self.maxValue = &maxValue
 	return self
 }
@@ -215,10 +215,10 @@ func (self *Metric) Label() *string {
 func (self *Metric) Filter() *string {
 	return self.filter
 }
-func (self *Metric) MinValue() *netmodel.Number {
+func (self *Metric) MinValue() *net.Number {
 	return self.minValue
 }
-func (self *Metric) MaxValue() *netmodel.Number {
+func (self *Metric) MaxValue() *net.Number {
 	return self.maxValue
 }
 func (self *Metric) Description() *string {

@@ -13,12 +13,12 @@
 * permissions and limitations under the License.
  */
 
-package model
+package http
 
 import (
 	"bytes"
 	"encoding/json"
-	netmodel "github.com/axibase/atsd-api-go/net/model"
+	"github.com/axibase/atsd-api-go/net"
 	"strings"
 )
 
@@ -26,20 +26,20 @@ type Severity string
 
 const (
 	UNDEFINED Severity = "UNDEFINED"
-	UNKNOWN            = "UNKNOWN"
-	NORMAL             = "NORMAL"
-	WARNING            = "WARNING"
-	MINOR              = "MINOR"
-	MAJOR              = "MAJOR"
-	CRITICAL           = "CRITICAL"
-	FATAL              = "FATAL"
+	UNKNOWN   Severity = "UNKNOWN"
+	NORMAL    Severity = "NORMAL"
+	WARNING   Severity = "WARNING"
+	MINOR     Severity = "MINOR"
+	MAJOR     Severity = "MAJOR"
+	CRITICAL  Severity = "CRITICAL"
+	FATAL     Severity = "FATAL"
 )
 
 type Message struct {
 	entity  string
 	message string
 
-	timestamp *netmodel.Millis
+	timestamp *net.Millis
 	severity  *Severity
 	mType     *string
 	source    *string
@@ -61,7 +61,7 @@ func (self *Message) SetMessage(message string) *Message {
 	self.message = message
 	return self
 }
-func (self *Message) SetTimestamp(timestamp netmodel.Millis) *Message {
+func (self *Message) SetTimestamp(timestamp net.Millis) *Message {
 	self.timestamp = &timestamp
 	return self
 }
@@ -88,7 +88,7 @@ func (self *Message) Entity() string {
 func (self *Message) Message() string {
 	return self.message
 }
-func (self *Message) Timestamp() *netmodel.Millis {
+func (self *Message) Timestamp() *net.Millis {
 	return self.timestamp
 }
 func (self *Message) Severity() *Severity {
@@ -140,7 +140,7 @@ func (self *Message) UnmarshalJSON(data []byte) error {
 	if iTimestamp, ok := jsonMap["timestamp"]; ok {
 		timestamp := iTimestamp.(json.Number)
 		t, _ := timestamp.Int64()
-		self.SetTimestamp(netmodel.Millis(t))
+		self.SetTimestamp(net.Millis(t))
 	}
 	if iSeverity, ok := jsonMap["severity"]; ok {
 		severity := iSeverity.(string)
