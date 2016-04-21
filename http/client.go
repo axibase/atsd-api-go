@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"crypto/tls"
 	"github.com/golang/glog"
 	"net/url"
 	"strconv"
@@ -63,7 +64,7 @@ type Client struct {
 	httpClient *http.Client
 }
 
-func New(mUrl url.URL, username, password string) *Client {
+func New(mUrl url.URL, username, password string, insecureSkipVerify bool) *Client {
 	var client = Client{url: &mUrl, username: username, password: password}
 	client.Series = &seriesApi{&client}
 	client.Properties = &propertiesApi{&client}
@@ -72,7 +73,9 @@ func New(mUrl url.URL, username, password string) *Client {
 	client.Messages = &messagesApi{&client}
 	client.Metric = &metricApi{&client}
 	client.SQL = &sqlApi{&client}
-	client.httpClient = &http.Client{}
+	client.httpClient = &http.Client{Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecureSkipVerify},
+	}}
 	return &client
 }
 

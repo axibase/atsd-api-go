@@ -69,7 +69,7 @@ type Series struct {
 	Warning string            `json:"warning,omitempty"`
 	Data    []*Sample         `json:"data"`
 
-	Type         SeriesType    `json:"type"`
+	Type         SeriesType    `json:"type,omitempty"`
 	ForecastName string        `json:"forecastName,omitempty"`
 	RequestId    string        `json:"requestId,omitempty"`
 	Meta         *ForecastMeta `json:"meta,omitempty"`
