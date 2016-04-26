@@ -47,9 +47,7 @@ const (
 )
 
 type Client struct {
-	url      *url.URL
-	username string
-	password string
+	url *url.URL
 
 	Series       *seriesApi
 	Properties   *propertiesApi
@@ -64,8 +62,8 @@ type Client struct {
 	httpClient *http.Client
 }
 
-func New(mUrl url.URL, username, password string, insecureSkipVerify bool) *Client {
-	var client = Client{url: &mUrl, username: username, password: password}
+func New(mUrl url.URL, insecureSkipVerify bool) *Client {
+	var client = Client{url: &mUrl}
 	client.Series = &seriesApi{&client}
 	client.Properties = &propertiesApi{&client}
 	client.Entities = &entitiesApi{&client}
@@ -88,7 +86,6 @@ func (self *Client) request(reqType, apiUrl string, reqJson []byte) (string, err
 	if err != nil {
 		panic(err)
 	}
-	req.SetBasicAuth(self.username, self.password)
 	res, err := self.httpClient.Do(req)
 	if err != nil {
 		return "", err
