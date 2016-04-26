@@ -181,9 +181,8 @@ func (self *entitiesApi) Create(entity *Entity) error {
 	if err != nil {
 		panic(err)
 	}
-	mUrl := url.URL{}
-	mUrl.Path = entitiesPath + "/" + entity.Name()
-	_, err = self.client.request("PUT", mUrl.String(), jsonRequest)
+	path := entitiesPath + "/" + url.QueryEscape(entity.Name())
+	_, err = self.client.request("PUT", path, jsonRequest)
 	if err != nil {
 		return err
 	}
@@ -195,9 +194,8 @@ func (self *entitiesApi) Update(entity *Entity) error {
 	if err != nil {
 		panic(err)
 	}
-	mUrl := url.URL{}
-	mUrl.Path = entitiesPath + "/" + entity.Name()
-	_, err = self.client.request("PATCH", mUrl.String(), jsonRequest)
+	path := entitiesPath + "/" + url.QueryEscape(entity.Name())
+	_, err = self.client.request("PATCH", path, jsonRequest)
 	if err != nil {
 		return err
 	}
@@ -217,14 +215,13 @@ func (self *entitiesApi) List(expression string, tags []string, limit uint64) ([
 		}
 	}
 
-	mUrl := url.URL{}
-	mUrl.Path = entitiesPath
+	path := entitiesPath
 	q := url.Values{}
 	q.Set("tags", tagsParams)
 	q.Set("expression", expression)
 	q.Set("limit", strconv.FormatUint(limit, 10))
-	mUrl.RawQuery = q.Encode()
-	jsonData, err := self.client.request("GET", mUrl.String(), []byte{})
+	path += "?" + q.Encode()
+	jsonData, err := self.client.request("GET", path, []byte{})
 	if err != nil {
 		return nil, err
 	}
@@ -247,9 +244,8 @@ func (self *metricApi) CreateOrReplace(metric *Metric) error {
 	if err != nil {
 		panic(err)
 	}
-	mUrl := url.URL{}
-	mUrl.Path = metricsPath + "/" + metric.Name()
-	_, err = self.client.request("PUT", mUrl.String(), jsonRequest)
+	path := metricsPath + "/" + url.QueryEscape(metric.Name())
+	_, err = self.client.request("PUT", path, jsonRequest)
 	if err != nil {
 		return err
 	}
@@ -305,14 +301,13 @@ func (self *entityGroupsApi) EntitiesList(group, expression string, tags []strin
 			}
 		}
 	}
-	mUrl := url.URL{}
-	mUrl.Path = entitiesGroupPath + "/" + group + "/entities"
+	path := entitiesGroupPath + "/" + url.QueryEscape(group) + "/entities"
 	q := url.Values{}
 	q.Add("tags", tagsParams)
 	q.Add("expression", expression)
 	q.Add("limit", strconv.FormatUint(limit, 10))
-	mUrl.RawQuery = q.Encode()
-	jsonData, err := self.client.request("GET", mUrl.String(), []byte{})
+	path += "?" + q.Encode()
+	jsonData, err := self.client.request("GET", path, []byte{})
 	if err != nil {
 		return nil, err
 	}
@@ -339,14 +334,13 @@ func (self *entityGroupsApi) List(expression string, tags []string, limit uint64
 		}
 	}
 
-	mUrl := url.URL{}
-	mUrl.Path = entitiesGroupPath
+	path := entitiesGroupPath
 	q := url.Values{}
 	q.Set("tags", tagsParams)
 	q.Set("expression", expression)
 	q.Set("limit", strconv.FormatUint(limit, 10))
-	mUrl.RawQuery = q.Encode()
-	jsonData, err := self.client.request("GET", mUrl.String(), []byte{})
+	path += "?" + q.Encode()
+	jsonData, err := self.client.request("GET", path, []byte{})
 	if err != nil {
 		return nil, err
 	}
@@ -365,13 +359,11 @@ type sqlApi struct {
 }
 
 func (self *sqlApi) Query(query string) (*Table, error) {
-	mUrl := url.URL{}
-	mUrl.Path = sql
-
+	path := sql
 	params := url.Values{}
 	params.Set("q", query)
-	mUrl.RawQuery = params.Encode()
-	jsonData, err := self.client.request("GET", mUrl.String(), []byte{})
+	path += "?" + params.Encode()
+	jsonData, err := self.client.request("GET", path, []byte{})
 	if err != nil {
 		return nil, err
 	}
