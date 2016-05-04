@@ -22,11 +22,19 @@ import (
 	"bufio"
 	"errors"
 	"github.com/golang/glog"
+	"strings"
 	"sync"
 	"time"
 )
 
 func DialTimeout(protocol, hostport string, timeout time.Duration, bufferSize int) (*NetworkConn, error) {
+	if !strings.Contains(hostport, ":") {
+		if protocol == "tcp" {
+			hostport += ":8081"
+		} else if protocol == "udp" {
+			hostport += ":8082"
+		}
+	}
 	nc := &NetworkConn{protocol: protocol, hostport: hostport, timeout: timeout}
 	err := nc.initConn(bufferSize)
 	if err != nil {
