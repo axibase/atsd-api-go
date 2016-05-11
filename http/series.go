@@ -18,9 +18,10 @@ package http
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/axibase/atsd-api-go/net"
 	"strings"
 	"time"
+
+	"github.com/axibase/atsd-api-go/net"
 )
 
 type Sample struct {

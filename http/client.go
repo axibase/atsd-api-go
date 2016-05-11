@@ -17,15 +17,15 @@ package http
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
-
-	"crypto/tls"
-	"github.com/golang/glog"
 	"net/url"
 	"strconv"
+
+	"github.com/golang/glog"
 )
 
 const (
