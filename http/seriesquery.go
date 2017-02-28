@@ -153,7 +153,6 @@ type SeriesQuery struct {
 	Limit        uint64              `json:"limit,omitempty"`
 	Entity       string              `json:"entity"`
 	Metric       string              `json:"metric"`
-	Last         bool                `json:"last,omitempty"`
 	Cache        bool                `json:"cache,omitempty"`
 	Type         SeriesType          `json:"type,omitempty"`
 	ForecastName string              `json:"forecastName,omitempty"`
