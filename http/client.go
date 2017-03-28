@@ -362,6 +362,7 @@ func (self *sqlApi) Query(query string) (*Table, error) {
 	path := sql
 	params := url.Values{}
 	params.Set("q", query)
+	params.Set("outputFormat", "json")
 	path += "?" + params.Encode()
 	jsonData, err := self.client.request("GET", path, []byte{})
 	if err != nil {
