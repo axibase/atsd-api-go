@@ -301,7 +301,8 @@ func (self *entityGroupsApi) EntitiesList(group, expression string, tags []strin
 			}
 		}
 	}
-	path := entitiesGroupPath + "/" + url.QueryEscape(group) + "/entities"
+	entitiesUrl := &url.URL{Path: entitiesGroupPath + "/" + group + "/entities"}
+	path := entitiesUrl.String()
 	q := url.Values{}
 	q.Add("tags", tagsParams)
 	q.Add("expression", expression)
